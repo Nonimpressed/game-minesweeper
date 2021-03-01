@@ -1,0 +1,71 @@
+* {
+    box-sizing: border-box;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background-color: rgb(107, 139, 109);
+}
+
+#board {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.square {
+    border: 1px solid rgb(255, 255, 255);
+    background-color: rgb(221, 221, 221);
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    padding: 11px;
+    text-align: center;
+    font-size: 16px;
+    font-family: sans-serif;
+}
+
+.square.red {
+    background-color: red;
+    color: white;
+}
+
+.square.n1 {
+    background: rgb(37, 128, 37);
+    color: white;
+}
+
+.square.n2 {
+    background: rgb(26, 167, 131);
+    color: white;
+}
+
+.square.n3 {
+    background: rgb(36, 75, 146);
+    color: white;
+}
+
+.square.n4 {
+    background: rgb(118, 20, 143);
+    color: white;
+}
+
+.square:not(.clicked):hover {
+    background-color: rgb(190, 190, 190);
+}
