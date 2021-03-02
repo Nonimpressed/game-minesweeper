@@ -36,8 +36,8 @@ document.querySelectorAll('.change-diff').forEach( el => {
 
 function initialiseGame() {
     BoardDimensions = getBoardDimensions();
-    console.log('Board Dimensions:');
-    console.log(BoardDimensions);
+    // console.log('Board Dimensions:');
+    // console.log(BoardDimensions);
     generateBoard();
     placeMines();
     reportTotalMines()
@@ -195,9 +195,12 @@ function createClickEvents() {
 }
 
 function youLose() {
-    document.querySelector('#lose').classList.add('active');
-    console.log('youlose');
     gameActive = false;
+
+    setTimeout(() => {
+        document.querySelector('#lose').classList.add('active');        
+    }, 1500);
+
 }
 
 function clickAdjacentSquares(row,col) {
@@ -224,9 +227,10 @@ function reportRemainingSquares() {
 }
 
 function youWin() {
-    document.querySelector('#win').classList.add('active');
-    console.log('youwin');
     gameActive = false;
+    setTimeout(() => {
+        document.querySelector('#win').classList.add('active');
+    }, 1500);
 }
 
 function beginTimer(time) {
