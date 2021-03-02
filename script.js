@@ -3,7 +3,8 @@ const SquareSizeUnit = 'px';
 const Board = document.querySelector('#board');
 let virtualBoard = [];
 let gameActive = true;
-const difficulty = 5;
+const difficulty = 2;
+const MaxBoardDimension = 20;
 
 function initialiseGame() {
     const BoardDimensions = getBoardDimensions();
@@ -18,8 +19,8 @@ function getBoardDimensions() {
     const Rows = Math.floor((window.innerHeight - 44)/SquareSize);
     const Columns = Math.floor((window.innerWidth - 44)/SquareSize);
     return {
-        rows: Rows,
-        columns: Columns,
+        rows: (Rows < MaxBoardDimension ? Rows : MaxBoardDimension ),
+        columns: (Columns < MaxBoardDimension ? Columns : MaxBoardDimension),
     };
 }
 
@@ -113,12 +114,12 @@ function placeMines(BoardDimensions) {
 
 function setSquareValue(row, column, value) {
     const element = document.querySelector(`#row${row}col${column}`);
-    element.innerHTML = value;
     element.classList.add('clicked');
     if(value === 'M') {
         element.classList.add('red');
     } else {
         element.classList.add(`n${value}`);
+        element.innerHTML = value;
     }
 }
 
@@ -140,6 +141,7 @@ function createClickEvents() {
 }
 
 function youLose() {
+    document.querySelector('#lose').classList.add('active');
     console.log('youlose');
     gameActive = false;
 }
@@ -158,3 +160,10 @@ function clickAdjacentSquares(row,col,BoardDimensions) {
 
 
 initialiseGame();
+
+// TODO
+// add duplicate mine detection and re-roll.
+// Add difficuly select before game starts. make it max out at 50% mines
+// Add you lose popup over the top
+// Add a tracker to show how many mines remaining.
+// Add win popup over the top
