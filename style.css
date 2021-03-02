@@ -95,6 +95,26 @@ body {
     color: white;
 }
 
+.square.n5 {
+    background: rgb(202, 131, 0);
+    color: white;
+}
+
+.square.n6 {
+    background: rgb(100, 211, 9);
+    color: white;
+}
+
+.square.n7 {
+    background: rgb(201, 38, 174);
+    color: white;
+}
+
+.square.n8 {
+    background: rgb(121, 0, 0);
+    color: white;
+}
+
 .square:not(.clicked):hover {
     background-color: rgb(134, 134, 134);
     transform: scale(1.05);
