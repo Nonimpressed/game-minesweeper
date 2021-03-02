@@ -10,17 +10,38 @@
 <body>
     <div id="board"></div>
 
+    <div id="difficulty" class="modal-container active">
+        <div class="modal">
+            <h2>How Many Mines?</h2>
+            <select name="diff" id="diff" class="select-css" value="1">
+                <option value="1">Mini Mines</option>
+                <option value="2">Mines Truly</option>
+                <option value="3">Many Mines</option>
+                <option value="4">All The Mines</option>
+                <option value="5">Never You Mine!</option>
+            </select>
+
+            <button id="startTheGame" class="button">Start</button>
+        </div>
+    </div>
+
     <div id="win" class="modal-container">
         <div class="modal">
             <h2>You Won! :D</h2>
             
+            <button class="button play-again">Play Again</button>
+
+            <button class="button change-diff">Change Difficulty</button>
         </div>
     </div>
 
     <div id="lose" class="modal-container">
         <div class="modal">
             <h2>You Lost. :(</h2>
-            
+
+            <button class="button play-again">Play Again</button>
+
+            <button class="button change-diff">Change Difficulty</button>
         </div>
     </div>
 

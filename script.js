@@ -3,11 +3,36 @@ const SquareSizeUnit = 'px';
 const Board = document.querySelector('#board');
 let virtualBoard = [];
 let gameActive = true;
-const difficulty = 1;
+let difficulty = 1;
 const MaxBoardDimension = 20;
 let BoardDimensions = {};
 let MinesRemaining = 0;
 let SquaresRemaining = 0;
+let startTime = null;
+
+document.querySelector('#startTheGame').addEventListener('click', e => {
+    resetGame();
+    difficulty = document.querySelector('#diff').value;
+    document.querySelector('#difficulty').classList.remove('active');
+    initialiseGame();
+});
+
+document.querySelectorAll('.play-again').forEach( el => {
+    el.addEventListener('click', () => {
+        document.querySelector('#lose').classList.remove('active');
+        document.querySelector('#win').classList.remove('active');
+        resetGame();
+        initialiseGame();
+    });
+});
+
+document.querySelectorAll('.change-diff').forEach( el => {
+    el.addEventListener('click', () => {
+        document.querySelector('#lose').classList.remove('active');
+        document.querySelector('#win').classList.remove('active');
+        document.querySelector('#difficulty').classList.add('active');
+    })
+})
 
 function initialiseGame() {
     BoardDimensions = getBoardDimensions();
@@ -17,6 +42,19 @@ function initialiseGame() {
     placeMines();
     reportTotalMines()
     createClickEvents();
+    reportRemainingSquares();
+
+    startTime = document.timeline.currentTime;
+    beginTimer(startTime);
+}
+
+function resetGame() {
+    virtualBoard = [];
+    gameActive = true;
+    BoardDimensions = {};
+    MinesRemaining = 0;
+    SquaresRemaining = 0;
+    startTime = null;
 }
 
 function getBoardDimensions() {
@@ -191,7 +229,25 @@ function youWin() {
     gameActive = false;
 }
 
-initialiseGame();
+function beginTimer(time) {
+    const elapsed = time - startTime;
+    const seconds = Math.round(elapsed / 1000);
+    updateTimer(seconds);
+    const targetNext = (seconds + 1) * 1000 + startTime;
+    setTimeout(
+        () => {
+            if(!gameActive) return;
+            requestAnimationFrame(beginTimer);
+        }, 
+        targetNext - performance.now(),
+    );
+}
+
+function updateTimer(seconds) {
+    document.querySelector('#timer').innerHTML = seconds+'s';
+}
+
+// initialiseGame();
 
 // TODO
 // add duplicate mine detection and re-roll.
