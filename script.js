@@ -3,15 +3,19 @@ const SquareSizeUnit = 'px';
 const Board = document.querySelector('#board');
 let virtualBoard = [];
 let gameActive = true;
-const difficulty = 2;
+const difficulty = 1;
 const MaxBoardDimension = 20;
+let BoardDimensions = {};
+let MinesRemaining = 0;
+let SquaresRemaining = 0;
 
 function initialiseGame() {
-    const BoardDimensions = getBoardDimensions();
+    BoardDimensions = getBoardDimensions();
+    console.log('Board Dimensions:');
     console.log(BoardDimensions);
-    generateBoard(BoardDimensions);
-    placeMines(BoardDimensions);
-
+    generateBoard();
+    placeMines();
+    reportTotalMines()
     createClickEvents();
 }
 
@@ -24,7 +28,7 @@ function getBoardDimensions() {
     };
 }
 
-function generateBoard(BoardDimensions) {
+function generateBoard() {
     // init html
     let squareHTML = '';
 
@@ -40,7 +44,7 @@ function generateBoard(BoardDimensions) {
                 isMine: false,
                 isNearMine: function() {
                     let self = virtualBoard[row][column];
-                    console.log(self.clicked);
+                    // console.log(self.clicked);
                     if(self.clicked === true) return;
                     if(self.isMine === true) {
                         setSquareValue(row,column,'M');
@@ -56,10 +60,11 @@ function generateBoard(BoardDimensions) {
                     if(self.bottomLeft() === true) minesTouching++
                     if(self.bottom() === true) minesTouching++
                     if(self.bottomRight() === true) minesTouching++
-                    console.log(minesTouching);
+                    // console.log(minesTouching);
                     virtualBoard[row][column].clicked = true;
                     setSquareValue(row,column,minesTouching);
-                    if( minesTouching < 1) clickAdjacentSquares(row,column,BoardDimensions);
+                    
+                    if( minesTouching < 1) clickAdjacentSquares(row,column);
                 },
                 topLeft: function() {
                     if( row - 1 < 0 || column - 1 < 0 ) return false;
@@ -99,17 +104,27 @@ function generateBoard(BoardDimensions) {
     }
 
     Board.innerHTML = squareHTML;
-    // console.log(virtualBoard);
 }
 
-function placeMines(BoardDimensions) {
-    for (let mine = 0; mine < (BoardDimensions.rows * difficulty); mine++) {
-        const row = getRandomInt(BoardDimensions.rows);
-        const col = getRandomInt(BoardDimensions.columns);
-        // will need a while loop that checks that the mine hasn't already been placed.
+function placeMines() {
+    const maxMines = (BoardDimensions.rows * difficulty);
+    for (let i = 0; i < maxMines; i++) {
+        let row = getRandomInt(BoardDimensions.rows);
+        let col = getRandomInt(BoardDimensions.columns);
+        // if(virtualBoard[row][col].isMine === true) return;
         virtualBoard[row][col].isMine = true;
-        console.log(row+','+col);
     }
+}
+
+function reportTotalMines() {
+    let total = 0;
+    for (let row = 0; row < BoardDimensions.rows; row++) {
+        for (let column = 0; column < BoardDimensions.columns; column++) {
+            if(virtualBoard[row][column].isMine) total++;
+        }
+    }
+    MinesRemaining = total;
+    document.querySelector('#mineTotal').innerHTML = total;
 }
 
 function setSquareValue(row, column, value) {
@@ -136,6 +151,7 @@ function createClickEvents() {
             const row = e.target.dataset.row;
             const col = e.target.dataset.col;
             virtualBoard[row][col].isNearMine();
+            reportRemainingSquares();
         })
     });
 }
@@ -146,8 +162,7 @@ function youLose() {
     gameActive = false;
 }
 
-function clickAdjacentSquares(row,col,BoardDimensions) {
-
+function clickAdjacentSquares(row,col) {
     if( row - 1 >= 0 && col - 1 >= 0 ) virtualBoard[row-1][col-1].isNearMine();
     if( row - 1 >= 0 ) virtualBoard[row-1][col].isNearMine();
     if( row - 1 >= 0 && col + 1 < BoardDimensions.columns ) virtualBoard[row-1][col+1].isNearMine();
@@ -158,6 +173,23 @@ function clickAdjacentSquares(row,col,BoardDimensions) {
     if( row + 1 < BoardDimensions.rows && col + 1 < BoardDimensions.columns) virtualBoard[row+1][col+1].isNearMine();
 }
 
+function reportRemainingSquares() {
+    const squares = document.querySelectorAll('.square');
+    let remaining = 0;
+    squares.forEach(el => {
+        if( !el.classList.contains('clicked')) remaining++;
+    });
+    SquaresRemaining = (remaining - MinesRemaining);
+    document.querySelector('#remaining').innerHTML = SquaresRemaining;
+
+    if(SquaresRemaining < 1) youWin();
+}
+
+function youWin() {
+    document.querySelector('#win').classList.add('active');
+    console.log('youwin');
+    gameActive = false;
+}
 
 initialiseGame();
 
