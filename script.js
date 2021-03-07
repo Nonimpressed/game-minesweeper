@@ -9,7 +9,7 @@ let BoardDimensions = {};
 let MinesRemaining = 0;
 let SquaresRemaining = 0;
 let Defuse = 0;
-const DefuseMiltiplier = 0.5;
+let DefuseMiltiplier = 0.5;
 let startTime = null;
 let currentTarget = null;
 let currentTargetTouchCoordinates = null;
@@ -18,6 +18,8 @@ let mineCheckTimeout = null;
 document.querySelector('#startTheGame').addEventListener('click', e => {
     resetGame();
     difficulty = document.querySelector('#diff').value;
+    DefuseMiltiplier = 1 - (difficulty / 10);
+    console.log(DefuseMiltiplier);
     document.querySelector('#difficulty').classList.remove('active');
     initialiseGame();
 });
