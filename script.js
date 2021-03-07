@@ -26,6 +26,7 @@ document.querySelectorAll('.play-again').forEach( el => {
     el.addEventListener('click', () => {
         document.querySelector('#lose').classList.remove('active');
         document.querySelector('#win').classList.remove('active');
+        document.querySelector('#infomodal').classList.remove('active');
         resetGame();
         initialiseGame();
     });
@@ -37,7 +38,13 @@ document.querySelectorAll('.change-diff').forEach( el => {
         document.querySelector('#win').classList.remove('active');
         document.querySelector('#difficulty').classList.add('active');
     })
-})
+});
+
+document.querySelectorAll('.info').forEach( el => {
+    el.addEventListener('click', () => {
+        document.querySelector('#infomodal').classList.toggle('active');
+    });
+});
 
 function initialiseGame() {
     BoardDimensions = getBoardDimensions();
@@ -210,7 +217,6 @@ function createClickEvents() {
                 x: Math.floor(e.touches[0].clientX),
                 y: Math.floor(e.touches[0].clientY),
             };
-            console.log('touchstart', currentTargetTouchCoordinates);
 
             if( Defuse > 0 ) {
                 // start the timer for mine checking.
@@ -334,7 +340,6 @@ function flagMine(el) {
         virtualBoard[row][col].clicked = true;
         el.classList.add('red','flagged');
     } else {
-        console.log('triggering click');
         virtualBoard[row][col].isNearMine();
     }
     Defuse--;
@@ -374,7 +379,7 @@ function reportRemainingSquares() {
     });
     SquaresRemaining = (remaining - MinesRemaining);
     document.querySelector('#remaining').innerHTML = SquaresRemaining;
-    console.log(SquaresRemaining);
+    // console.log(SquaresRemaining);
     if(SquaresRemaining < 1) youWin();
 }
 
@@ -407,11 +412,3 @@ function updateTimer(seconds) {
     document.querySelector('#timer').innerHTML = seconds+'s';
 }
 
-// initialiseGame();
-
-// TODO
-// add duplicate mine detection and re-roll.
-// Add difficuly select before game starts. make it max out at 50% mines
-// Add you lose popup over the top
-// Add a tracker to show how many mines remaining.
-// Add win popup over the top
