@@ -8,7 +8,12 @@ const MaxBoardDimension = 20;
 let BoardDimensions = {};
 let MinesRemaining = 0;
 let SquaresRemaining = 0;
+let Defuse = 0;
+const DefuseMiltiplier = 0.5;
 let startTime = null;
+let currentTarget = null;
+let currentTargetTouchCoordinates = null;
+let mineCheckTimeout = null;
 
 document.querySelector('#startTheGame').addEventListener('click', e => {
     resetGame();
@@ -40,9 +45,11 @@ function initialiseGame() {
     // console.log(BoardDimensions);
     generateBoard();
     placeMines();
-    reportTotalMines()
+    reportTotalMines();
+    Defuse = Math.floor(MinesRemaining * DefuseMiltiplier);
     createClickEvents();
     reportRemainingSquares();
+    reportDefuseRemaining();
 
     startTime = document.timeline.currentTime;
     beginTimer(startTime);
@@ -53,6 +60,7 @@ function resetGame() {
     gameActive = true;
     BoardDimensions = {};
     MinesRemaining = 0;
+    Defuse = 0;
     SquaresRemaining = 0;
     startTime = null;
 }
@@ -145,7 +153,7 @@ function generateBoard() {
 }
 
 function placeMines() {
-    const maxMines = (BoardDimensions.rows * difficulty);
+    const maxMines = (BoardDimensions.columns * difficulty);
     for (let i = 0; i < maxMines; i++) {
         let row = getRandomInt(BoardDimensions.rows);
         let col = getRandomInt(BoardDimensions.columns);
@@ -183,15 +191,159 @@ function getRandomInt(max) {
 function createClickEvents() {
     const Squares = document.querySelectorAll('.square');
     Squares.forEach(square => {
-        square.addEventListener('click', e => {
+        // square.addEventListener('click', e => {
+        //     e.preventDefault();
+        //     if(!gameActive) return;
+        //     const row = e.target.dataset.row;
+        //     const col = e.target.dataset.col;
+        //     virtualBoard[row][col].isNearMine();
+        //     reportRemainingSquares();
+        // });
+
+        square.addEventListener('touchstart', e => {
             e.preventDefault();
             if(!gameActive) return;
-            const row = e.target.dataset.row;
-            const col = e.target.dataset.col;
-            virtualBoard[row][col].isNearMine();
-            reportRemainingSquares();
+            
+            // set the click
+            currentTarget = e.target;
+            currentTargetTouchCoordinates = {
+                x: Math.floor(e.touches[0].clientX),
+                y: Math.floor(e.touches[0].clientY),
+            };
+            console.log('touchstart', currentTargetTouchCoordinates);
+
+            if( Defuse > 0 ) {
+                // start the timer for mine checking.
+                currentTarget.classList.add('press-timer');
+                mineCheckTimeout = setTimeout(() => {
+                    // if the timer reaches the end then flag the mine.
+                    flagMine(e.target);
+                }, 2000);
+            } else {
+                const row = currentTarget.dataset.row;
+                const col = currentTarget.dataset.col;
+                virtualBoard[row][col].isNearMine();
+                reportRemainingSquares();
+            }
+        });
+
+        square.addEventListener('touchend', e => {
+            clearTimeout(mineCheckTimeout);
+            e.preventDefault();
+            e.stopPropagation();
+            // clear all timeouts ASAP
+
+            if(didUserCancelTouch(e)) {
+                currentTarget.classList.remove('press-timer');
+                currentTarget = null;
+                currentTargetTouchCoordinates = false;
+                return;
+            }
+
+            // if the clicked element has a square in the classwlist
+            if( currentTarget !== null && currentTarget == e.target) {
+                const row = currentTarget.dataset.row;
+                const col = currentTarget.dataset.col;
+                virtualBoard[row][col].isNearMine();
+                reportRemainingSquares();
+            }
+
+            if ( currentTarget !== null) {
+                // reset the loading click and current target
+                currentTarget.classList.remove('press-timer');
+            }
+            currentTarget = null;
+            currentTargetTouchCoordinates = false;
+        });
+
+        square.addEventListener('mousedown', e => {
+            e.preventDefault();
+            if(!gameActive) return;
+            
+            // set the click
+            currentTarget = e.target;
+
+            if( Defuse > 0 ) {
+                // start the timer for mine checking.
+                currentTarget.classList.add('press-timer');
+                mineCheckTimeout = setTimeout(() => {
+                    // if the timer reaches the end then flag the mine.
+                    flagMine(e.target);
+                }, 2000);
+            } else {
+                const row = currentTarget.dataset.row;
+                const col = currentTarget.dataset.col;
+                virtualBoard[row][col].isNearMine();
+                reportRemainingSquares();
+            }
+        });
+
+        square.addEventListener('mouseleave', e => {
+            // clear all timeouts ASAP
+            clearTimeout(mineCheckTimeout);
+            if( currentTarget !== null ) {
+                currentTarget.classList.remove('press-timer');
+            }
+            currentTarget = null;
+        });
+
+        square.addEventListener('mouseup', e => {
+            clearTimeout(mineCheckTimeout);
+            if( currentTarget !== null ) {
+                currentTarget.classList.remove('press-timer');
+            }
+            if( currentTarget !== null && currentTarget === e.target ) {
+                currentTarget.classList.remove('press-timer');
+                const row = currentTarget.dataset.row;
+                const col = currentTarget.dataset.col;
+                virtualBoard[row][col].isNearMine();
+                reportRemainingSquares();
+            }
+            currentTarget = null;
         })
+
+        
     });
+}
+
+function didUserCancelTouch(e) {
+    const NewX = Math.floor(e.changedTouches[0].clientX);
+    const NewY = Math.floor(e.changedTouches[0].clientY);
+    const New = {
+        xRight: NewX + Math.floor(SquareSize / 2),
+        xLeft: NewX - Math.floor(SquareSize / 2),
+        yUp: NewY - Math.floor(SquareSize / 2),
+        yDown: NewY + Math.floor(SquareSize / 2),
+    };
+    const Old = currentTargetTouchCoordinates;
+    if(
+        Old.x <= New.xRight 
+        && Old.x >= New.xLeft
+        && Old.y <= New.yDown 
+        && Old.y >= New.yUp
+    ) {
+        return false;
+    }
+    return true;
+}
+
+function flagMine(el) {
+    const row = el.dataset.row;
+    const col = el.dataset.col;
+    if( Defuse > 0 && virtualBoard[row][col].isMine === true ) {
+        virtualBoard[row][col].clicked = true;
+        el.classList.add('red','flagged');
+    } else {
+        console.log('triggering click');
+        virtualBoard[row][col].isNearMine();
+    }
+    Defuse--;
+    reportDefuseRemaining();
+    reportRemainingSquares();
+    if( currentTarget !== null ) {
+        currentTarget.classList.remove('press-timer');
+        currentTarget = null;
+    }
 }
 
 function youLose() {
@@ -222,8 +374,12 @@ function reportRemainingSquares() {
     });
     SquaresRemaining = (remaining - MinesRemaining);
     document.querySelector('#remaining').innerHTML = SquaresRemaining;
-
+    console.log(SquaresRemaining);
     if(SquaresRemaining < 1) youWin();
+}
+
+function reportDefuseRemaining() {
+    document.querySelector('#defuse').innerHTML = Defuse;
 }
 
 function youWin() {

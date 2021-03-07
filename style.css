@@ -43,6 +43,7 @@ body {
     font-family: sans-serif;
     border-radius: 5px;
     color: rgb(197, 197, 197);
+    position: relative;
 }
 
 .square.clicked {
@@ -113,6 +114,10 @@ body {
 .square.n8 {
     background: rgb(121, 0, 0);
     color: white;
+}
+
+.square.flagged {
+    background-color: black !important;
 }
 
 .square:not(.clicked):hover {
@@ -217,6 +222,10 @@ body {
     background: rgb(37, 88, 37);
 }
 
+#defuse {
+    background: rgb(0, 0, 0);
+}
+
 /* class applies to select element itself, not a wrapper element */
 .select-css {
     display: block;
@@ -270,4 +279,28 @@ body {
 /* Set options to normal weight */
 .select-css option {
     font-weight:normal;
+}
+
+.press-timer::before {
+    position: absolute;
+    content: "";
+    top: -10px;
+    left: -25%;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.301);
+    width: 150%;
+    height: 5px;
+    background-color: red;
+    animation: progress 2s forwards linear;
+}
+
+@keyframes progress {
+    0% {
+        width: 0%;
+    }
+    10% {
+        width: 0%;
+    }
+    100% {
+        width: 150%;
+    }
 }
