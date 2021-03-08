@@ -18,7 +18,7 @@ let mineCheckTimeout = null;
 document.querySelector('#startTheGame').addEventListener('click', e => {
     resetGame();
     difficulty = document.querySelector('#diff').value;
-    DefuseMiltiplier = 1 - (difficulty / 10);
+    DefuseMiltiplier =  (0.7 - (difficulty / 10)).toFixed(1);
     console.log(DefuseMiltiplier);
     document.querySelector('#difficulty').classList.remove('active');
     initialiseGame();
