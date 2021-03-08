@@ -212,6 +212,7 @@ function createClickEvents() {
         square.addEventListener('touchstart', e => {
             e.preventDefault();
             if(!gameActive) return;
+            if( e.target.classList.contains('clicked') ) return;
             
             // set the click
             currentTarget = e.target;
@@ -267,6 +268,7 @@ function createClickEvents() {
         square.addEventListener('mousedown', e => {
             e.preventDefault();
             if(!gameActive) return;
+            if( e.target.classList.contains('clicked') ) return;
             
             // set the click
             currentTarget = e.target;
@@ -340,7 +342,7 @@ function flagMine(el) {
     const col = el.dataset.col;
     if( Defuse > 0 && virtualBoard[row][col].isMine === true ) {
         virtualBoard[row][col].clicked = true;
-        el.classList.add('red','flagged');
+        el.classList.add('red','flagged', 'clicked');
     } else {
         virtualBoard[row][col].isNearMine();
     }

@@ -306,7 +306,7 @@ body {
     font-weight:normal;
 }
 
-.press-timer::before {
+.square:not(.clicked).press-timer::before {
     position: absolute;
     content: "";
     top: -15px;
