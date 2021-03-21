@@ -352,6 +352,8 @@ function flagMine(el) {
     if( Defuse > 0 && virtualBoard[row][col].isMine === true ) {
         virtualBoard[row][col].clicked = true;
         el.classList.add('red','flagged', 'clicked');
+        MinesRemaining--;
+        document.querySelector('#mineTotal').innerHTML = MinesRemaining;
     } else {
         virtualBoard[row][col].isNearMine();
     }
@@ -388,7 +390,12 @@ function reportRemainingSquares() {
     const squares = document.querySelectorAll('.square');
     let remaining = 0;
     squares.forEach(el => {
-        if( !el.classList.contains('clicked')) remaining++;
+        // if the classlist containes red, or clicked then we don't include it.
+        if( el.classList.contains('flagged') || el.classList.contains('clicked')) {
+            // we skip
+        } else {
+            remaining++;
+        }
     });
     SquaresRemaining = (remaining - MinesRemaining);
     document.querySelector('#remaining').innerHTML = SquaresRemaining;
@@ -442,7 +449,8 @@ function getScore() {
     // console.log((difficulty * 1000));
     // score is the ratio of mines to squares * (difficulty * 1000)
     // so thats ((mines / squares) * (difficulty * 1000)) - seconds;
-    return Math.floor( (TotalMines / Squares) * ((difficulty * 2) * 1000) - Seconds );
+    const Score = Math.floor( (TotalMines / Squares) * ((difficulty * 2) * 1000) - (Seconds / 2) );
+    return Score > 0 ? Score : 0;
 }
 
 function getLeaderBoardScores() {
