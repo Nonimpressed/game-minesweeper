@@ -19,7 +19,7 @@ document.querySelector('#startTheGame').addEventListener('click', e => {
     resetGame();
     difficulty = document.querySelector('#diff').value;
     DefuseMiltiplier =  (0.7 - (difficulty / 10)).toFixed(1);
-    console.log(DefuseMiltiplier);
+    // console.log(DefuseMiltiplier);
     document.querySelector('#difficulty').classList.remove('active');
     initialiseGame();
 });
@@ -29,6 +29,7 @@ document.querySelectorAll('.play-again').forEach( el => {
         document.querySelector('#lose').classList.remove('active');
         document.querySelector('#win').classList.remove('active');
         document.querySelector('#infomodal').classList.remove('active');
+        document.querySelector('#leadermodal').classList.remove('active');
         resetGame();
         initialiseGame();
     });
@@ -45,6 +46,13 @@ document.querySelectorAll('.change-diff').forEach( el => {
 document.querySelectorAll('.info').forEach( el => {
     el.addEventListener('click', () => {
         document.querySelector('#infomodal').classList.toggle('active');
+    });
+});
+
+document.querySelectorAll('.leaderboard').forEach( el => {
+    el.addEventListener('click', () => {
+        updateLeaderboardScores();
+        document.querySelector('#leadermodal').classList.toggle('active');
     });
 });
 
@@ -240,9 +248,10 @@ function createClickEvents() {
             clearTimeout(mineCheckTimeout);
             e.preventDefault();
             e.stopPropagation();
+            if(!gameActive) return;
             // clear all timeouts ASAP
 
-            if(didUserCancelTouch(e)) {
+            if(currentTarget !== null && didUserCancelTouch(e)) {
                 currentTarget.classList.remove('press-timer');
                 currentTarget = null;
                 currentTargetTouchCoordinates = false;
@@ -393,6 +402,7 @@ function reportDefuseRemaining() {
 
 function youWin() {
     gameActive = false;
+    saveScoreToLocal();
     setTimeout(() => {
         document.querySelector('#win').classList.add('active');
     }, 1500);
@@ -402,6 +412,7 @@ function beginTimer(time) {
     const elapsed = time - startTime;
     const seconds = Math.round(elapsed / 1000);
     updateTimer(seconds);
+    updateScore(seconds);
     const targetNext = (seconds + 1) * 1000 + startTime;
     setTimeout(
         () => {
@@ -416,3 +427,68 @@ function updateTimer(seconds) {
     document.querySelector('#timer').innerHTML = seconds+'s';
 }
 
+
+function updateScore(seconds) {
+    const score = getScore();
+    // console.log(score);
+    document.querySelector('#scoredisplay').innerHTML = score;
+}
+
+function getScore() {
+    const TotalMines = document.querySelector('#mineTotal').innerHTML;
+    const Squares = BoardDimensions.columns * BoardDimensions.rows;
+    const Seconds = parseInt(document.querySelector('#timer').innerHTML);
+    // console.log((TotalMines / Squares));
+    // console.log((difficulty * 1000));
+    // score is the ratio of mines to squares * (difficulty * 1000)
+    // so thats ((mines / squares) * (difficulty * 1000)) - seconds;
+    return Math.floor( (TotalMines / Squares) * ((difficulty * 2) * 1000) - Seconds );
+}
+
+function getLeaderBoardScores() {
+    return localStorage.getItem('leaderboard') ? JSON.parse(localStorage.getItem('leaderboard')) : false;
+}
+
+function updateLeaderboardScores() {
+    leaderboardArray = getLeaderBoardScores();
+    let leaderboardHTML = '';
+    let counter = 1;
+    if( leaderboardArray ) {
+        // sort array
+        // console.log(leaderboardArray);
+        sortedArray = leaderboardArray.sort((a, b) => b.score - a.score);
+        // console.log(sortedArray);
+
+        sortedArray.forEach( item => {
+            if(counter <= 5) {
+                leaderboardHTML += `<tr>
+                    <td>${item.score}</td>
+                    <td>${item.mines}</td>
+                    <td>${item.squares}</td>
+                    <td>${item.time}</td>
+                </tr>`;
+                counter ++;
+            }
+            
+        })
+    } else {
+        leaderboardHTML += '<td colspan="4">You have no saved scores.</td>';
+    }
+    document.querySelector('#leaderboard-content').innerHTML = leaderboardHTML;
+}
+
+function saveScoreToLocal() {
+    const TotalMines = document.querySelector('#mineTotal').innerHTML;
+    const Squares = BoardDimensions.columns * BoardDimensions.rows;
+    const Seconds = parseInt(document.querySelector('#timer').innerHTML);
+    leaderboardArray = getLeaderBoardScores() ? getLeaderBoardScores() : [];
+
+    leaderboardArray.push({
+        score: getScore(),
+        mines: TotalMines,
+        squares: Squares,
+        time: Seconds,
+    });
+
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboardArray));
+}

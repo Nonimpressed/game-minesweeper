@@ -226,12 +226,9 @@ body {
     background: rgb(0, 0, 0);
 }
 
-#info {
-    position: fixed;
-    bottom: 0;
-    right: 0;
+#info,
+#leaderboard {
     padding: 2px 5px;
-    border-radius: 10px 10px 0 10px;
     text-align: center;
     background-color: purple;
     color: white;
@@ -243,12 +240,41 @@ body {
     align-items: center;
     transition: all 0.3s linear;
     cursor: pointer;
+    position: fixed;
+    bottom: 0;
 }
 
-#info:hover {
+#info {
+    right: 0;
+    border-radius: 10px 10px 0 10px;
+}
+
+#leaderboard {
+    left: 0;
+    border-radius: 10px 10px 10px 0;
+}
+
+#leaderboard .inner {
+    width: 18px;
+}
+
+#info:hover,
+#leaderboard:hover {
     width: 50px;
     height: 50px;
-    border-radius: 15px 15px 0 15px;
+}
+
+#scorebox {
+    position: fixed;
+    bottom: 0;
+    padding: 5px;
+    background-color: purple;
+    color: white;
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: sans-serif;
+    border-radius: 5px 5px 0 0;
 }
 
 /* class applies to select element itself, not a wrapper element */
@@ -335,3 +361,58 @@ body {
         width: 150%;
     }
 }
+
+table.table {
+    border: 4px solid #792396;
+    background-color: #FFFFFF;
+    width: 350px;
+    text-align: center;
+    border-collapse: collapse;
+  }
+  table.table td, table.table th {
+    border: 1px solid #555555;
+    padding: 5px 2px;
+  }
+  table.table tbody td {
+    font-size: 13px;
+    font-weight: bold;
+    color: #000000;
+  }
+  table.table thead {
+    background: #792396;
+    border-bottom: 4px solid #792396;
+  }
+  table.table thead th {
+    font-size: 19px;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: left;
+    border-left: 2px solid #792396;
+  }
+  table.table thead th:first-child {
+    border-left: none;
+  }
+  
+  table.table tfoot {
+    font-size: 13px;
+    font-weight: bold;
+    color: #FFFFFF;
+    background: #CE3CFF;
+    background: -moz-linear-gradient(top, #da6dff 0%, #d34fff 66%, #CE3CFF 100%);
+    background: -webkit-linear-gradient(top, #da6dff 0%, #d34fff 66%, #CE3CFF 100%);
+    background: linear-gradient(to bottom, #da6dff 0%, #d34fff 66%, #CE3CFF 100%);
+    border-top: 5px solid #792396;
+  }
+  table.table tfoot td {
+    font-size: 13px;
+  }
+  table.table tfoot .links {
+    text-align: right;
+  }
+  table.table tfoot .links a{
+    display: inline-block;
+    background: #792396;
+    color: #FFFFFF;
+    padding: 2px 8px;
+    border-radius: 5px;
+  }
